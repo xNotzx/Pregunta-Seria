@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pregunta especial</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: black;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ===== FONDO ANIMADO ===== */
+        .fondo {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fondo svg {
+            width: 90vmin;
+            opacity: 0.25;
+        }
+
+        .fondo path {
+            fill: none;
+            stroke: red;
+            stroke-width: 4;
+            stroke-dasharray: 1200;
+            stroke-dashoffset: 1200;
+            animation: fondoCorazon 6s ease-in-out infinite;
+        }
+
+        @keyframes fondoCorazon {
+            0%   { stroke-dashoffset: 1200; }
+            50%  { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -1200; }
+        }
+
+        /* ===== CONTENIDO ===== */
+        .contenedor {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: clamp(1.6rem, 5vw, 2.3rem);
+            margin-bottom: 24px;
+        }
+
+        p {
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
+        }
+
+        button {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            padding: 12px 26px;
+            margin: 10px;
+            border-radius: 12px;
+            border: none;
+            transition: transform 0.2s ease;
+        }
+
+        #si {
+            background-color: #ff2d6f;
+            color: white;
+            z-index: 2;
+        }
+
+        #no {
+            background-color: #555;
+            color: white;
+            position: absolute;
+            z-index: 1;
+        }
+
+        .resultado {
+            display: none;
+        }
+
+        .resultado img {
+            width: 100%;
+            max-width: 280px;
+            margin: 20px auto 0;
+            display: block;
+            border-radius: 15px;
+        }
+
+        /* ===== CORAZÓN FINAL ===== */
+        .corazon {
+            display: none;
+            margin: 20px auto 0;
+            width: clamp(140px, 40vw, 200px);
+        }
+
+        .corazon path {
+            fill: none;
+            stroke: #ff2d6f;
+            stroke-width: 6;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dibujar 1.8s ease forwards;
+        }
+
+        @keyframes dibujar {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- FONDO -->
+<div class="fondo">
+    <svg viewBox="0 0 512 512">
+        <path d="
+            M256 464
+            L48 256
+            C-16 192 16 64 128 64
+            C192 64 256 128 256 128
+            C256 128 320 64 384 64
+            C496 64 528 192 464 256
+            Z"/>
+    </svg>
+</div>
+
+<!-- PREGUNTA -->
+<div class="contenedor" id="pregunta">
+    <h1>¿Quieres ser mi novia?</h1>
+    <button id="si">Sí</button>
+    <button id="no">No</button>
+</div>
+
+<!-- RESULTADO -->
+<div class="contenedor resultado" id="resultado">
+    <h1>❤️Gracias mvdd y prometo que seras la Mujer mas Feliz del Mundoo ❤️</h1>
+    <p>Gracias por hacerme la persona más feliz ❤️😍</p>
+    <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjNtMHBoNDFiajRmOTJwbWtxbmJ6cDFyMjhobnFtYnBhaHRndTQyeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1JmGiBtqTuehfYxuy9/giphy.gif">
+
+    <div class="corazon" id="corazon">
+        <svg viewBox="0 0 512 512">
+            <path d="
+                M256 464
+                L48 256
+                C-16 192 16 64 128 64
+                C192 64 256 128 256 128
+                C256 128 320 64 384 64
+                C496 64 528 192 464 256
+                Z"/>
+        </svg>
+    </div>
+</div>
+
+<audio id="sonido">
+    <source src="https://www.soundjay.com/human/sounds/heartbeat-01.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    const botonNo = document.getElementById("no");
+    const botonSi = document.getElementById("si");
+    const pregunta = document.getElementById("pregunta");
+    const resultado = document.getElementById("resultado");
+    const sonido = document.getElementById("sonido");
+    const corazon = document.getElementById("corazon");
+
+    let escalaSi = 1;
+
+    function vibrar() {
+        if (navigator.vibrate) navigator.vibrate(120);
+    }
+
+    function moverBotonNo() {
+        const cont = pregunta.getBoundingClientRect();
+        const rectSi = botonSi.getBoundingClientRect();
+        const w = botonNo.offsetWidth;
+        const h = botonNo.offsetHeight;
+
+        let x, y, distancia, intentos = 0;
+
+        do {
+            x = Math.random() * (cont.width - w);
+            y = Math.random() * (cont.height - h);
+
+            const cxNo = cont.left + x + w / 2;
+            const cyNo = cont.top + y + h / 2;
+            const cxSi = rectSi.left + rectSi.width / 2;
+            const cySi = rectSi.top + rectSi.height / 2;
+
+            distancia = Math.hypot(cxNo - cxSi, cyNo - cySi);
+            intentos++;
+        } while (distancia < 90 && intentos < 20);
+
+        botonNo.style.left = x + "px";
+        botonNo.style.top = y + "px";
+
+        botonNo.style.transform = "scale(1.25)";
+        setTimeout(() => botonNo.style.transform = "scale(1)", 200);
+
+        escalaSi = Math.min(escalaSi + 0.1, 30);
+        botonSi.style.transform = `scale(${escalaSi})`;
+
+        sonido.currentTime = 0;
+        sonido.play();
+        vibrar();
+    }
+
+    botonNo.addEventListener("mouseover", moverBotonNo);
+    botonNo.addEventListener("touchstart", moverBotonNo);
+
+    botonSi.addEventListener("click", () => {
+        pregunta.style.display = "none";
+        resultado.style.display = "block";
+        setTimeout(() => corazon.style.display = "block", 600);
+    });
+</script>
+
+</body>
+</html>
